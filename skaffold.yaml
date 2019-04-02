@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/adlakhaankit/firstmicrosampleapp:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/adlakhaankit/firstmicrosampleapp:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: firstmicrosampleapp
+        chartPath: charts/firstmicrosampleapp
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/adlakhaankit/firstmicrosampleapp'
+          image.tag: '{{.DIGEST_HEX}}'
